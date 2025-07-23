@@ -1,2 +1,2 @@
 # SoundSpot
-@SoundSpot
+@SoundSpot_bot
