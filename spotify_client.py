@@ -10,9 +10,9 @@ class SpotifyClient:
         )
         self.client = Spotify(auth_manager=auth_manager)
 
-        def search_tracks(self, query: str, limit: int = 10):
-            "Search for tracks on Spotify."
-            results = self.client.search(q=query, type='track', limit=limit)
-            return results.get('tracks', {}).get('items', [])
+    def search_tracks(self, query: str, limit: int = 10):
+        "Search for tracks on Spotify."
+        results = self.client.search(q=query, type='track', limit=limit)
+        return results.get('tracks', {}).get('items', [])
         
 spotify_client = SpotifyClient()
