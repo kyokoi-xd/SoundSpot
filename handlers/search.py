@@ -2,6 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from spotify_client import spotify_client
 from jamendo_client import jamendo_client
+from handlers.callback_handler import user_playback
 
 async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = ' '.join(context.args)
@@ -19,12 +20,16 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.message.reply_text("Ничего не найдено.")
         return
     
-    buttons = []
-    for t in tracks:
-        title = t.get('name') or t.get('name')
-        artist = (t.get('artists')[0]['name'] if source == 'Spotify' else t.get('artist_name'))
-        url = t.get('external_urls', {}).get('spotify') if source == 'Spotify' else t.get('audio')
-        buttons.append([InlineKeyboardButton(f"{title} - {artist}", url=url)])
+    user_playback[update.effective_user.id] = {
+        'tracks': tracks,
+        'source': source,
+    }
 
+    buttons = [
+        [InlineKeyboardButton(f"{i+1}. {t.get('name')} - "
+                              f"{t['artists'][0]['name'] if source == 'Spotify' else t.get('artist_name')}",
+                              callback_data=str(i))]
+        for i, t in enumerate(tracks)
+    ]
     reply_markup = InlineKeyboardMarkup(buttons)
     await update.message.reply_text(f"Результаты поиска {source}:", reply_markup=reply_markup)
