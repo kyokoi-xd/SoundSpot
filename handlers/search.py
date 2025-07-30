@@ -4,9 +4,13 @@ from spotify_client import spotify_client
 from handlers.callback_handler import user_playback
 
 async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    query = ' '.join(context.args)
+    if context.args:
+        query = ' '.join(context.args)
+    else:
+        query = update.message.text.strip() if update.message.text else ''
+
     if not query:
-        await update.message.reply_text("Пожалуйста, укажи поисковый запрос: /search <название или артист>")
+        await update.message.reply_text("Пожалуйста, укажи поисковый запрос")
         return
     
     tracks = spotify_client.search_tracks(query)

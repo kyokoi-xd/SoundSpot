@@ -2,6 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import threading
 from youtube_client import youtube_client
+import os
 
 user_playback = {}
 user_playback_lock = threading.Lock()
@@ -16,7 +17,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     with user_playback_lock:
         tracks = user_playback.get(user_id, [])
 
-
     if idx < 0 or idx >= len(tracks):
         await query.edit_message_text("Неверный индекс трека.")
         return
@@ -28,5 +28,15 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     file_path = youtube_client.download_track(search_query)
     caption = f"▶️ Воспроизведение: {title}"
-    with open(file_path, 'rb') as f:
-        await context.bot.send_audio(chat_id=query.message.chat_id, audio=f, caption=caption)
+    try:
+        with open(file_path, 'rb') as f:
+            await context.bot.send_audio(
+                chat_id=query.message.chat_id,
+                audio=f,
+                caption=caption,
+                title=title,
+                performer=artist
+            )
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)
