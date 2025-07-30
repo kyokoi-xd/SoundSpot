@@ -1,8 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 import threading
-from config import config
-from spotify_client import spotify_client
 from youtube_client import youtube_client
 
 user_playback = {}
@@ -16,26 +14,19 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     idx = int(query.data)
 
     with user_playback_lock:
-        state = user_playback.get(user_id, {})
+        tracks = user_playback.get(user_id, [])
 
-    tracks = state.get('tracks', [])
-    source = state.get('source')
 
     if idx < 0 or idx >= len(tracks):
         await query.edit_message_text("Неверный индекс трека.")
         return
 
     track = tracks[idx]
+    title = track.get('name')
+    artist = track.get('artists')[0].get('name')
+    search_query = f"{title} {artist}"
 
-    if source == 'Spotify':
-        url = track.get('preview_url')
-        caption = f"▶️ Воспроизведение: {track.get('name')} - {track.get('artists')[0].get('name')}"
-        if url:
-            await context.bot.send_audio(chat_id=query.message.chat_id, audio=url, caption=caption)
-        else:
-            await query.edit_message_text("Preview не доступен.")
-    else:
-        file_path = youtube_client.download_track(track.get('source_query'))
-        caption = f"▶️ Воспроизведение: {track.get('name')}"
-        with open(file_path, 'rb') as f:
-            await context.bot.send_audio(chat_id=query.message.chat_id, audio=f, caption=caption)
+    file_path = youtube_client.download_track(search_query)
+    caption = f"▶️ Воспроизведение: {title}"
+    with open(file_path, 'rb') as f:
+        await context.bot.send_audio(chat_id=query.message.chat_id, audio=f, caption=caption)

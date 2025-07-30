@@ -10,11 +10,8 @@ class YoutubeClient:
             'format': 'bestaudio/best',
             'quiet': True,
             'noplaylist': True,
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
+            # Убираем postprocessors для конвертации в mp3
+            'cookiefile': 'youtube_cookies.txt',
         }
 
     def download_track(self, query: str) -> str:
@@ -23,7 +20,7 @@ class YoutubeClient:
             entry = info['entries'][0] if 'entries' in info else info
             file_id = entry.get('id')
             filename = ydl.prepare_filename(entry)
-            base, _ = os.path.splitext(filename)
-            return f'{base}.mp3'
+            # Возвращаем оригинальный путь к файлу без изменения расширения
+            return filename
 
 youtube_client = YoutubeClient()
