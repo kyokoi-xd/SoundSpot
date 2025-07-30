@@ -2,3 +2,4 @@ python-telegram-bot
 spotipy
 requests
 python-dotenv
+yt-dlp

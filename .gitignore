@@ -20,3 +20,5 @@ venv/
 
 # MacOS
 .DS_Store
+
+downloads/

@@ -2,6 +2,8 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import threading
 from config import config
+from spotify_client import spotify_client
+from youtube_client import youtube_client
 
 user_playback = {}
 user_playback_lock = threading.Lock()
@@ -27,14 +29,13 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     if source == 'Spotify':
         url = track.get('preview_url')
-        artists = track['artists'][0]['name']
+        caption = f"▶️ Воспроизведение: {track.get('name')} - {track.get('artists')[0].get('name')}"
+        if url:
+            await context.bot.send_audio(chat_id=query.message.chat_id, audio=url, caption=caption)
+        else:
+            await query.edit_message_text("Preview не доступен.")
     else:
-        url = track.get('audio')
-        artists = track.get('artist_name')
-
-    caption = f"▶️ Воспроизведение: {track.get('name')} - {artists}"
-
-    if url:
-        await context.bot.send_audio(chat_id=query.message.chat_id, audio=url, caption=caption)
-    else:
-        await query.edit_message_text("Нет доступного аудио для воспроизведения.")
+        file_path = youtube_client.download_track(track.get('source_query'))
+        caption = f"▶️ Воспроизведение: {track.get('name')}"
+        with open(file_path, 'rb') as f:
+            await context.bot.send_audio(chat_id=query.message.chat_id, audio=f, caption=caption)
