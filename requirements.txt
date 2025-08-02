@@ -3,3 +3,4 @@ spotipy
 requests
 python-dotenv
 yt-dlp
+yandex-music

@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 import threading
-from youtube_client import youtube_client
+from yandex_client import yandex_client
 import os
 
 user_playback = {}
@@ -27,22 +27,21 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     # 🎵 ШАГ 4: Получаем информацию о треке
     track = tracks[idx]
     title = track.get('name', 'Unknown')
-    artist = track.get('artists', [{}])[0].get('name', 'Unknown')
-    search_query = f"{title} {artist}"
+    artist = track.get('artist', [{}])[0].get('name', 'Unknown')
 
     # ⏳ ШАГ 5: Отправляем статус загрузки
-    status_message = await query.edit_message_text("⏳ Скачиваю трек...")
+    status_message = await query.edit_message_text("⏳ Скачиваю трек из Yandex Music...")
     
     try:
-        # 📥 ШАГ 6: Скачиваем трек
-        file_path = youtube_client.download_track(search_query)
+        # 📥 ШАГ 6: Скачиваем трек через Yandex
+        file_path = yandex_client.download_track(track)
         
         if not file_path or not os.path.exists(file_path):
-            await status_message.edit_text("❌ Ошибка при скачивании трека.")
+            await status_message.edit_text("❌ Ошибка при скачивании трека из Yandex Music.")
             return
         
         # 🎵 ШАГ 7: Отправляем аудио с красивым caption
-        caption = f"🎵 {title} - {artist}"
+        caption = f"🎵 {title} - {artist}\n📱 Скачано из Yandex Music"
         try:
             with open(file_path, 'rb') as f:
                 await context.bot.send_audio(
