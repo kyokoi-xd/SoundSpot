@@ -15,12 +15,12 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
     
     # 🔍 ШАГ 1: Отправляем промежуточное сообщение для быстрого отклика
-    status_message = await update.message.reply_text("🔍 Идёт поиск треков в Yandex Music...")
+    status_message = await update.message.reply_text("🔍 Идёт поиск треков...")
     
     try:
         # 🔍 ШАГ 2: Проверяем доступность Yandex клиента
         if not yandex_client.is_available():
-            await status_message.edit_text("❌ Yandex Music недоступен. Попробуйте позже.")
+            await status_message.edit_text("❌ Сервис недоступен. Попробуйте позже.")
             return
         
         # 🔍 ШАГ 3: Ищем треки через Yandex
@@ -28,7 +28,7 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         if not tracks:
             # ❌ Если ничего не найдено, обновляем сообщение
-            await status_message.edit_text("❌ Треки не найдены в Yandex Music. Попробуйте другой запрос.")
+            await status_message.edit_text("❌ Треки не найдены. Попробуйте другой запрос.")
             return
 
         # ✅ ШАГ 4: Сохраняем результаты для пользователя
@@ -48,7 +48,7 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         # ✅ ШАГ 6: Обновляем сообщение с результатами
         await status_message.edit_text(
-            f"✅ Найдено {len(tracks)} треков в Yandex Music\n"
+            f"✅ Найдено {len(tracks)} треков\n"
             f"🎵 Выберите трек для скачивания",
             reply_markup=markup
         )

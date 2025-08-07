@@ -30,18 +30,18 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     artist = track.get('artist', [{}])[0].get('name', 'Unknown')
 
     # ⏳ ШАГ 5: Отправляем статус загрузки
-    status_message = await query.edit_message_text("⏳ Скачиваю трек из Yandex Music...")
+    status_message = await query.edit_message_text("⏳ Скачиваю трек...")
     
     try:
         # 📥 ШАГ 6: Скачиваем трек через Yandex
         file_path = yandex_client.download_track(track)
         
         if not file_path or not os.path.exists(file_path):
-            await status_message.edit_text("❌ Ошибка при скачивании трека из Yandex Music.")
+            await status_message.edit_text("❌ Ошибка при скачивании трека.")
             return
         
         # 🎵 ШАГ 7: Отправляем аудио с красивым caption
-        caption = f"🎵 {title} - {artist}\n📱 Скачано из Yandex Music"
+        caption = f"🎵 {title} - {artist}"
         try:
             with open(file_path, 'rb') as f:
                 await context.bot.send_audio(
